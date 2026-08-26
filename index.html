@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relic Realms</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div><span class="eyebrow">DISCOVERY RPG</span><h1>RELIC REALMS</h1><p>Every expedition can uncover something nobody has seen before.</p></div>
+      <div class="header-actions"><button id="saveBtn">Save</button><button id="loadBtn">Load</button><button id="newBtn" class="danger">New Game</button></div>
+    </header>
+    <section class="stats" id="stats"></section>
+    <div class="layout">
+      <section class="panel story"><div class="panel-title"><h2>Adventure Log</h2><span id="location"></span></div><div id="log" class="log"></div><div class="actions" id="actions"></div></section>
+      <aside class="side">
+        <section class="panel"><h2>Character</h2><div id="character"></div></section>
+        <section class="panel"><h2>Equipment</h2><div id="equipment"></div></section>
+        <section class="panel"><h2>Inventory</h2><div id="inventory"></div></section>
+        <section class="panel"><h2>Discovery Codex</h2><div id="codex"></div></section>
+      </aside>
+    </div>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
