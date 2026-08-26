@@ -1,28 +1,53 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Relic Realms</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Relic Realms</title>
+<style>
+:root{--bg:#080b12;--panel:#111722;--line:#293244;--text:#eef2ff;--muted:#8993a8;--accent:#8ea0ff;--good:#67d99c;--bad:#ff6969;--gold:#ffd166}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 30% 0,#18203a 0,#080b12 48%);color:var(--text);font:14px system-ui,-apple-system,Segoe UI,sans-serif}.app{max-width:1150px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center}.eyebrow{color:var(--accent);font-size:11px;font-weight:900;letter-spacing:3px}.top h1{margin:0;font-size:36px}.muted{color:var(--muted)}button{background:#1a2231;color:var(--text);border:1px solid #303b50;border-radius:9px;padding:9px 12px;font-weight:750;cursor:pointer}button:hover{background:#273247}.danger{border-color:#5a3540}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:15px 0}.stat,.panel{background:rgba(17,23,34,.96);border:1px solid var(--line);border-radius:13px}.stat{padding:10px 12px}.stat span{display:block;color:var(--muted);font-size:10px;letter-spacing:1px}.stat b{font-size:18px}.layout{display:grid;grid-template-columns:1fr 340px;gap:12px}.panel{padding:14px}.story{min-height:650px}.panel-title{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:5px}.panel-title h2,.panel h2{margin:0;font-size:16px}.log{height:470px;overflow:auto}.entry{padding:9px 2px;border-bottom:1px solid #202735}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}.actions button{flex:1;min-width:130px}.side{display:flex;flex-direction:column;gap:12px}.item{padding:8px 0;border-top:1px solid #252d3c}.enemy{background:#1c1520;border:1px solid #4a3041;border-radius:10px;padding:11px;margin:9px 0}.bar{height:8px;background:#2a303b;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--bad)}.common{color:#c7cedb}.uncommon{color:#67d99c}.rare{color:#70aaff}.epic{color:#c58cff}.legendary{color:#ffbe69}.mythic{color:#ff78a8}.inventory-item{width:100%;text-align:left;margin-top:7px}.tag{font-size:10px;background:#20283a;padding:2px 6px;border-radius:20px;color:#aeb8cf}@media(max-width:850px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:520px){.app{padding:11px}.stats{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start;flex-direction:column}.top h1{font-size:30px}}
+</style>
 </head>
-<body>
-  <main class="app">
-    <header>
-      <div><span class="eyebrow">DISCOVERY RPG</span><h1>RELIC REALMS</h1><p>Every expedition can uncover something nobody has seen before.</p></div>
-      <div class="header-actions"><button id="saveBtn">Save</button><button id="loadBtn">Load</button><button id="newBtn" class="danger">New Game</button></div>
-    </header>
-    <section class="stats" id="stats"></section>
-    <div class="layout">
-      <section class="panel story"><div class="panel-title"><h2>Adventure Log</h2><span id="location"></span></div><div id="log" class="log"></div><div class="actions" id="actions"></div></section>
-      <aside class="side">
-        <section class="panel"><h2>Character</h2><div id="character"></div></section>
-        <section class="panel"><h2>Equipment</h2><div id="equipment"></div></section>
-        <section class="panel"><h2>Inventory</h2><div id="inventory"></div></section>
-        <section class="panel"><h2>Discovery Codex</h2><div id="codex"></div></section>
-      </aside>
-    </div>
-  </main>
-  <script src="game.js"></script>
-</body>
-</html>
+<body><div class="app">
+<header class="top"><div><span class="eyebrow">DISCOVERY RPG • SINGLE PLAYER</span><h1>RELIC REALMS</h1><div class="muted">Collect. Fight. Forge. Discover things that nobody else has.</div></div><div><button id="saveBtn">Save</button> <button id="loadBtn">Load</button> <button id="newBtn" class="danger">New Game</button></div></header>
+<section id="stats" class="stats"></section>
+<div class="layout"><section class="panel story"><div class="panel-title"><h2>Adventure Log</h2><span id="location" class="muted"></span></div><div id="enemy"></div><div id="log" class="log"></div><div id="actions" class="actions"></div></section>
+<aside class="side"><section class="panel"><h2>Character</h2><div id="character"></div></section><section class="panel"><h2>Equipment</h2><div id="equipment"></div></section><section class="panel"><h2>Inventory</h2><div id="inventory"></div></section><section class="panel"><h2>Discovery Codex</h2><div id="codex"></div></section></aside></div></div>
+<script>
+'use strict';
+const KEY='relic-realms-local-v3';
+const MATERIALS=[['Iron','common',2,10,'Reliable metal.'],['Oak','common',0,14,'Light and resilient wood.'],['Steel','uncommon',5,16,'Tempered and dependable.'],['Silver','uncommon',4,10,'Bright metal that disrupts undead.'],['Obsidian','rare',10,-4,'Volcanic glass with a razor edge.'],['Crystal','rare',2,5,'Stores magical energy.'],['Moonstone','epic',4,7,'Amplifies lunar magic.'],['Dragonbone','legendary',8,18,'Ancient bone with incredible strength.'],['Meteorite','mythic',14,8,'Metal that remembers falling from the sky.'],['Voidstone','mythic',5,4,'A fragment of somewhere impossible.']];
+const TYPES={Sword:8,Dagger:6,Spear:9,Axe:10,Hammer:12,Scythe:11,Bow:8,Staff:7};
+const CORES=[['Keen Edge',6,'More physical damage'],['Ember Core',4,'Burning hits'],['Frost Core',4,'Chance to slow'],['Storm Core',5,'Chance to shock'],['Lifesteal Core',3,'Recover health'],['Gravity Core',6,'Chance to stagger'],['Void Core',8,'Unstable magic']];
+const SHAPES=['Straight','Curved','Jagged','Serrated','Crystalline','Barbed'];
+const AREAS=[['Whispering Forest',1,['Goblin','Wolf','Bandit']],['Sunken Ruins',2,['Skeleton','Rogue Mage','Stone Golem']],['Ember Caverns',4,['Fire Imp','Lava Hound','Ash Knight']],['The Void Rift',7,['Voidling','Rift Stalker','Abyssal Knight']]];
+const RM={common:1,uncommon:1.15,rare:1.35,epic:1.7,legendary:2.2,mythic:3};
+let S;
+const $=id=>document.getElementById(id),r=n=>Math.floor(Math.random()*n),pick=a=>a[r(a.length)];
+function rarity(){let x=Math.random();return x<.5?'common':x<.76?'uncommon':x<.91?'rare':x<.975?'epic':x<.997?'legendary':'mythic'}
+function say(x){S.log.push(x);if(S.log.length>100)S.log.shift()}
+function itemName(i){return i.material+' '+i.shape+' '+i.type+' of '+i.core}
+function makeItem(opts={}){let type=opts.type||pick(Object.keys(TYPES)),m=opts.material?MATERIALS.find(x=>x[0]===opts.material)||pick(MATERIALS):pick(MATERIALS),c=opts.core?CORES.find(x=>x[0]===opts.core)||pick(CORES):pick(CORES),q=opts.rarity||rarity(),shape=opts.shape||pick(SHAPES),power=Math.round((TYPES[type]+m[2]+c[1]+r(8))*RM[q])+S.p.level;let i={id:Date.now()+Math.random(),type,material:m[0],shape,core:c[0],rarity:q,power,description:m[4]+' '+c[2]+'.',value:Math.max(10,power*5)};S.inv.push(i);S.d.items++;return i}
+function newGame(){S={p:{level:1,xp:0,hp:100,maxHp:100,mana:40,maxMana:40,gold:50},area:0,inv:[],equip:null,spells:[],recipes:[],d:{items:0,materials:MATERIALS.length,spells:0,enemies:0,areas:1,secrets:0},log:[],enemy:null};say('🌅 Welcome to Relic Realms. Every item is assembled from meaningful parts.');say('💡 Try rare material + rare core combinations. Some recipes are hidden.');render()}
+function spawn(){let a=AREAS[S.area],name=pick(a[2]),lv=a[1]+Math.max(0,S.p.level-a[1]),hp=25+a[1]*15+r(18)+lv*4;S.enemy={name,level:lv,hp,maxHp:hp,damage:5+lv*3+r(5)};S.d.enemies++;say('⚔️ A level '+lv+' '+name+' appears!')}
+function hurt(n){S.p.hp-=n;if(S.p.hp<=0){S.p.hp=S.p.maxHp;S.p.mana=S.p.maxMana;S.p.gold=Math.max(0,S.p.gold-15);S.enemy=null;say('💀 You were defeated. You wake at camp and lose 15 gold.')}}
+function enemyTurn(){if(!S.enemy)return;let n=S.enemy.damage+r(5);hurt(n);if(S.enemy)say('The '+S.enemy.name+' hits you for '+n+'.')}
+function attack(){if(!S.enemy)return;let d=6+S.p.level*2+(S.equip?S.equip.power:0)+r(8),crit=Math.random()<.1;if(crit)d*=2;S.enemy.hp-=d;say('⚔️ You '+(crit?'critically ':'')+'strike for '+d+' damage.');if(S.enemy.hp<=0)return win();if(S.equip&&S.equip.core==='Lifesteal Core'&&Math.random()<.3){let h=Math.max(1,Math.round(d*.1));S.p.hp=Math.min(S.p.maxHp,S.p.hp+h);say('🩸 Lifesteal restores '+h+' HP.')}if(S.equip&&S.equip.core==='Ember Core'&&Math.random()<.3){S.enemy.hp-=8;say('🔥 The enemy burns for 8.');if(S.enemy.hp<=0)return win()}enemyTurn();render()}
+function defend(){if(!S.enemy)return;S.p.mana=Math.min(S.p.maxMana,S.p.mana+6);let n=Math.max(1,Math.floor(S.enemy.damage*.35));say('🛡️ You brace and take '+n+' damage.');hurt(n);render()}
+function cast(){if(!S.enemy)return;if(!S.spells.length){say('You have no spells. Create one first.');return render()}if(S.p.mana<12){say('Not enough mana.');return render()}let z=S.spells[S.spells.length-1];S.p.mana-=12;let d=z.power+S.p.level*3+r(8);S.enemy.hp-=d;say('✨ '+z.name+' deals '+d+' damage.');if(S.enemy.hp<=0)return win();enemyTurn();render()}
+function win(){let e=S.enemy,g=10+e.level*7+r(12),xp=15+e.level*12;S.p.gold+=g;S.p.xp+=xp;say('🏆 '+e.name+' defeated! +'+g+' gold, +'+xp+' XP.');if(Math.random()<.82){let i=makeItem();say('🎁 Loot: <b class="'+i.rarity+'">'+itemName(i)+'</b> ['+i.rarity+']')}if(Math.random()<.07){S.d.secrets++;S.recipes.push('Unknown Recipe '+S.d.secrets);say('📜 You found a secret recipe fragment!')}S.enemy=null;levelUp();render()}
+function levelUp(){let need=S.p.level*70;if(S.p.xp>=need){S.p.xp-=need;S.p.level++;S.p.maxHp+=15;S.p.maxMana+=7;S.p.hp=S.p.maxHp;S.p.mana=S.p.maxMana;say('⬆️ LEVEL UP! You reached level '+S.p.level+'.')}}
+function explore(){if(S.enemy)return say('Defeat the current enemy first.'),render();if(Math.random()<.68)spawn();else{let i=makeItem();say('🔎 You discovered <b class="'+i.rarity+'">'+itemName(i)+'</b>.');if(Math.random()<.3){let g=5+r(15);S.p.gold+=g;say('🪙 You also found '+g+' gold.')}}render()}
+function travel(){if(S.enemy)return say('You cannot travel during combat.'),render();let n=(S.area+1)%AREAS.length;if(S.p.level<AREAS[n][1])return say('You need level '+AREAS[n][1]+' to enter '+AREAS[n][0]+'.'),render();S.area=n;S.d.areas=Math.max(S.d.areas,n+1);say('🗺️ You travel to '+AREAS[n][0]+'.');render()}
+function equipBest(){if(!S.inv.length)return say('Your inventory is empty.'),render();let i=S.inv.reduce((a,b)=>b.power>a.power?b:a);S.inv=S.inv.filter(x=>x.id!==i.id);if(S.equip)S.inv.push(S.equip);S.equip=i;say('🗡️ Equipped '+itemName(i)+'.');render()}
+function equipId(id){let i=S.inv.find(x=>String(x.id)===String(id));if(!i)return;S.inv=S.inv.filter(x=>x.id!==i.id);if(S.equip)S.inv.push(S.equip);S.equip=i;say('🗡️ Equipped '+itemName(i)+'.');render()}
+function inventory(){let out=S.inv.slice().reverse().map(i=>'<div class="item"><b class="'+i.rarity+'">'+itemName(i)+'</b><br><span class="muted">Power '+i.power+' • '+i.rarity+'<br>'+i.description+'</span><br><button onclick="equipId('+JSON.stringify(i.id)+')">Equip</button></div>').join('');openPanel('Inventory',out||'<p class="muted">Empty.</p>')}
+function openPanel(title,html){let w=window.open('','_blank','width=600,height=700');if(!w){alert('Popup blocked. Allow popups for this game.');return}w.document.write('<title>'+title+'</title><style>body{background:#0b0e15;color:#eee;font:14px system-ui;padding:20px}.item{padding:12px;border-bottom:1px solid #293244}.common{color:#c7cedb}.uncommon{color:#67d99c}.rare{color:#70aaff}.epic{color:#c58cff}.legendary{color:#ffbe69}.mythic{color:#ff78a8}button{padding:7px;background:#1b2433;color:white;border:1px solid #39465d;border-radius:7px}</style><h2>'+title+'</h2>'+html+'</body>');w.document.close()}
+function craft(){if(S.inv.length<2)return say('You need two items to experiment.'),render();let a=S.inv.shift(),b=S.inv.shift(),secret=(a.material==='Moonstone'&&b.material==='Dragonbone')||(a.material==='Meteorite'&&b.core==='Void Core')||(b.material==='Meteorite'&&a.core==='Void Core');let i=makeItem(secret?{rarity:'legendary',material:'Moonstone',core:'Void Core'}:{});if(secret){i.type='Sword';i.core='Eclipse Core';i.power+=25;i.description='A weapon born from impossible forces.';S.d.secrets++;S.recipes.push('Eclipse Core');say('🌑 SECRET RECIPE DISCOVERED: ECLIPSE CORE!')}else say('🔨 You fused '+a.material+' + '+b.material+' into '+itemName(i)+'.');render()}
+function createSpell(){let e=pick(['Fire','Ice','Lightning','Nature','Shadow','Void','Gravity','Time']),f=pick(['Bolt','Beam','Nova','Wave','Wall','Orb']),b=pick(['Seeking','Chain','Explosive','Piercing','Orbiting','Returning']),z={name:e+' '+f+' of '+b,power:15+r(12)};S.spells.push(z);S.d.spells++;say('✨ NEW SPELL: '+z.name+'!');render()}
+function rest(){if(S.enemy)return say('You cannot rest during combat.'),render();S.p.hp=S.p.maxHp;S.p.mana=S.p.maxMana;say('⛺ You rest at camp.');render()}
+function save(){localStorage.setItem(KEY,JSON.stringify(S));say('💾 Saved locally in this browser.');render()}
+function load(){let x=localStorage.getItem(KEY);if(!x)return say('No local save found.'),render();try{S=JSON.parse(x);say('📂 Local save loaded.');render()}catch{newGame()}}
+function render(){let p=S.p,need=p.level*70;$('stats').innerHTML='<div class="stat"><span>LEVEL</span><b>'+p.level+'</b></div><div class="stat"><span>HP</span><b>'+p.hp+'/'+p.maxHp+'</b></div><div class="stat"><span>MANA</span><b>'+p.mana+'/'+p.maxMana+'</b></div><div class="stat"><span>XP</span><b>'+p.xp+'/'+need+'</b></div><div class="stat"><span>GOLD</span><b>🪙 '+p.gold+'</b></div><div class="stat"><span>AREA</span><b>'+(S.area+1)+'/4</b></div>';$('location').textContent=AREAS[S.area][0];$('log').innerHTML=S.log.map(x=>'<div class="entry">'+x+'</div>').join('');$('log').scrollTop=99999;$('character').innerHTML='<div class=item>Adventurer • Level '+p.level+'</div><div class=item>✨ Spells: '+S.spells.length+'</div><div class=item>📜 Secrets: '+S.d.secrets+'</div>';$('equipment').innerHTML=S.equip?'<div class=item><b class="'+S.equip.rarity+'">'+itemName(S.equip)+'</b><br>Power '+S.equip.power+'<br><span class=muted>'+S.equip.description+'</span></div>':'<span class=muted>Nothing equipped.</span>';$('inventory').innerHTML='<button onclick="inventory()">🎒 Open Inventory ('+S.inv.length+')</button>';$('codex').innerHTML='Items '+S.d.items+'<br>Materials '+S.d.materials+'/'+MATERIALS.length+'<br>Spells '+S.d.spells+'<br>Enemies '+S.d.enemies+'<br>Areas '+S.d.areas+'/4<br>Secrets '+S.d.secrets;if(S.enemy){let e=S.enemy,pct=Math.max(0,Math.min(100,e.hp/e.maxHp*100));$('enemy').innerHTML='<div class=enemy><b>⚔️ '+e.name+' • Lv '+e.level+'</b><div class=bar><i style="width:'+pct+'%"></i></div>'+Math.max(0,e.hp)+'/'+e.maxHp+' HP</div>'}else $('enemy').innerHTML='';let a=S.enemy?[['⚔️ Attack',attack],['🛡️ Defend',defend],['✨ Cast Spell',cast]]:[['🗺️ Explore',explore],['🚶 Travel',travel],['🔨 Experiment',craft],['🗡️ Equip Best',equipBest],['✨ Create Spell',createSpell],['⛺ Rest',rest]];$('actions').innerHTML='';a.forEach(x=>{let b=document.createElement('button');b.textContent=x[0];b.onclick=x[1];$('actions').appendChild(b)})}
+$('saveBtn').onclick=save;$('loadBtn').onclick=load;$('newBtn').onclick=()=>{if(confirm('Start a new adventure?'))newGame()};newGame();
+</script></body></html>
